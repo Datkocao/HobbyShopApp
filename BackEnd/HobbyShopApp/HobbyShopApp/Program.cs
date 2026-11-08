@@ -1,4 +1,5 @@
 
+using System.Threading.Tasks;
 using HobbyShopApp.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,7 +7,7 @@ namespace HobbyShopApp
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,14 @@ namespace HobbyShopApp
              .UseSnakeCaseNamingConvention());
 
             var app = builder.Build();
+
+            if (app.Environment.IsDevelopment())
+            {
+                using var scope = app.Services.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                await DbSeeder.SeedAsync(db, app.Configuration, logger);
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
