@@ -13,6 +13,10 @@ namespace HobbyShopApp.Data
         public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
         public DbSet<User> Users => Set<User>();
         public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Product> Products => Set<Product>();
+        public DbSet<Productimage> ProductImages => Set<Productimage>();
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -55,6 +59,6 @@ namespace HobbyShopApp.Data
                     .HasForeignKey(x => x.ActorUserId)
                     .OnDelete(DeleteBehavior.SetNull);
             });
-        }
+        }   
     }
 }

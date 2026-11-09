@@ -74,6 +74,58 @@ namespace HobbyShopApp.Migrations
                     b.ToTable("audit_logs", (string)null);
                 });
 
+            modelBuilder.Entity("HobbyShopApp.Models.Category", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<long?>("ParentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("parent_id");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("slug");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_categories");
+
+                    b.HasIndex("ParentId")
+                        .HasDatabaseName("ix_categories_parent_id");
+
+                    b.ToTable("categories", (string)null);
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.Permission", b =>
                 {
                     b.Property<long>("Id")
@@ -101,6 +153,144 @@ namespace HobbyShopApp.Migrations
                         .HasDatabaseName("ix_permissions_code");
 
                     b.ToTable("permissions", (string)null);
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Product", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<long>("CreatedById")
+                        .HasColumnType("bigint")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<long>("CreatedByUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_featured");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<long>("Price")
+                        .HasColumnType("bigint")
+                        .HasColumnName("price");
+
+                    b.Property<long?>("SellerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("seller_id");
+
+                    b.Property<long?>("SellerUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("seller_user_id");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("slug");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int>("StockQuantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("stock_quantity");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("WeightGrams")
+                        .HasColumnType("integer")
+                        .HasColumnName("weight_grams");
+
+                    b.HasKey("Id")
+                        .HasName("pk_products");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_products_category_id");
+
+                    b.HasIndex("CreatedById")
+                        .HasDatabaseName("ix_products_created_by_id");
+
+                    b.HasIndex("SellerId")
+                        .HasDatabaseName("ix_products_seller_id");
+
+                    b.ToTable("products", (string)null);
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Productimage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_primary");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("product_id");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("storage_key");
+
+                    b.HasKey("Id")
+                        .HasName("pk_product_images");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_product_images_product_id");
+
+                    b.ToTable("product_images", (string)null);
                 });
 
             modelBuilder.Entity("HobbyShopApp.Models.Role", b =>
@@ -230,6 +420,56 @@ namespace HobbyShopApp.Migrations
                     b.Navigation("Actor");
                 });
 
+            modelBuilder.Entity("HobbyShopApp.Models.Category", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.Category", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .HasConstraintName("fk_categories_categories_parent_id");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Product", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_products_categories_category_id");
+
+                    b.HasOne("HobbyShopApp.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_products_users_created_by_id");
+
+                    b.HasOne("HobbyShopApp.Models.User", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerId")
+                        .HasConstraintName("fk_products_users_seller_id");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Seller");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Productimage", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.Product", "Product")
+                        .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_images_products_product_id");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.RolePermission", b =>
                 {
                     b.HasOne("HobbyShopApp.Models.Permission", "Permission")
@@ -263,9 +503,21 @@ namespace HobbyShopApp.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("HobbyShopApp.Models.Category", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Products");
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Product", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("HobbyShopApp.Models.Role", b =>
