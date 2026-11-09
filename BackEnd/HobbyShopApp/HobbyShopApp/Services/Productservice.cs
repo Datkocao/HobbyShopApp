@@ -21,11 +21,13 @@ public class ProductService : IProductService
 {
     private readonly AppDbContext _db;
     private readonly IAuditService _audit;
+    private readonly IImageUrlBuilder _urls;
 
-    public ProductService(AppDbContext db, IAuditService audit)
+    public ProductService(AppDbContext db, IAuditService audit, IImageUrlBuilder urls)
     {
         _db = db;
         _audit = audit;
+        _urls = urls;
     }
 
     // Cách chuyển một Product thành dòng trong danh sách. Viết dạng Expression để EF dịch thẳng
@@ -58,12 +60,15 @@ public class ProductService : IProductService
     {
         take = Math.Clamp(take, 1, 50);
 
-        return await VisibleToCustomers()
-            .Where(p => p.IsFeatured)
-            .OrderByDescending(p => p.CreatedAt).ThenByDescending(p => p.Id)
-            .Take(take)
-            .Select(ListItem)
-            .ToListAsync();
+        var items = await VisibleToCustomers()
+        .Where(p => p.IsFeatured)
+        .OrderByDescending(p => p.CreatedAt).ThenByDescending(p => p.Id)
+        .Take(take)
+        .Select(ListItem)
+        .ToListAsync();
+
+        FillImageUrls(items);                                   // [THÊM] điền PrimaryImageUrl
+        return items;
     }
 
     public async Task<ServiceResult<PagedResult<ProductListItemDto>>> GetListAsync(ProductQuery query, bool isManager)
@@ -126,6 +131,8 @@ public class ProductService : IProductService
             .Select(ListItem)
             .ToListAsync();
 
+        FillImageUrls(items);
+
         return ServiceResult<PagedResult<ProductListItemDto>>.Ok(new PagedResult<ProductListItemDto>
         {
             Items = items,
@@ -156,9 +163,14 @@ public class ProductService : IProductService
         var product = await q.FirstOrDefaultAsync();
 
         // Không phân biệt "không tồn tại" với "không được xem" để không lộ thông tin.
-        return product is null
-            ? ServiceResult<ProductDetailDto>.Fail(ServiceErrorType.NotFound, "Không tìm thấy sản phẩm.")
-            : ServiceResult<ProductDetailDto>.Ok(ToDetailDto(product));
+        if (product is null)
+            return ServiceResult<ProductDetailDto>.Fail(ServiceErrorType.NotFound, "Không tìm thấy sản phẩm.");
+
+        var dto = ToDetailDto(product);
+        foreach (var image in dto.Images)
+            image.Url = _urls.GetUrl(image.StorageKey);             // [THÊM]
+
+        return ServiceResult<ProductDetailDto>.Ok(dto);
     }
 
     // ---------- Tạo ----------
@@ -307,6 +319,12 @@ public class ProductService : IProductService
     // ---------- Hàm hỗ trợ ----------
 
     // Trả về thông báo lỗi, hoặc null nếu hợp lệ.
+
+    private void FillImageUrls(List<ProductListItemDto> items)
+    {
+        foreach (var item in items)
+            item.PrimaryImageUrl = item.PrimaryImageKey is null ? null : _urls.GetUrl(item.PrimaryImageKey);
+    }
     private async Task<string?> ValidateAsync(long categoryId, ProductStatus status)
     {
         if (status != ProductStatus.Draft && status != ProductStatus.Active)
@@ -335,6 +353,8 @@ public class ProductService : IProductService
     // Thêm ký tự escape cho %, _ và \ để từ khóa của người dùng không bị hiểu thành ký tự đại diện của LIKE.
     private static string EscapeLike(string value) =>
         value.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+
+
 
     private static object Snapshot(Product p) => new
     {

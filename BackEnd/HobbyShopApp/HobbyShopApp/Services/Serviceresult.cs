@@ -6,7 +6,8 @@ public enum ServiceErrorType
     None,
     Validation,   // dữ liệu không hợp lệ        -> 400
     NotFound,     // không tìm thấy               -> 404
-    Conflict      // xung đột (trùng, đang dùng)  -> 409
+    Conflict,// xung đột (trùng, đang dùng)  -> 409
+    Unavailable
 }
 
 // Kết quả của một thao tác nghiệp vụ: hoặc thành công kèm dữ liệu, hoặc thất bại kèm loại lỗi và thông báo.

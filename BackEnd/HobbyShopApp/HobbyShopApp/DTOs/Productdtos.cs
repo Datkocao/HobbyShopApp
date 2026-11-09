@@ -80,12 +80,16 @@ public class ProductListItemDto
 
     // Khóa ảnh đại diện trên R2 (chưa phải URL; bước upload ảnh sẽ chuyển thành URL).
     public string? PrimaryImageKey { get; set; }
+
+    public string? PrimaryImageUrl { get; set; }
 }
 
 public class ProductImageDto
 {
     public long Id { get; set; }
     public string StorageKey { get; set; } = null!;
+    public string Url { get; set; } = "";
+
     public int SortOrder { get; set; }
     public bool IsPrimary { get; set; }
 }

@@ -22,6 +22,80 @@ namespace HobbyShopApp.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("HobbyShopApp.Models.Address", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DetailLine")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("detail_line");
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("district");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("province");
+
+                    b.Property<string>("RecipientName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("recipient_name");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Ward")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("ward");
+
+                    b.HasKey("Id")
+                        .HasName("pk_addresses");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_addresses_user_id");
+
+                    b.ToTable("addresses", (string)null);
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.AuditLog", b =>
                 {
                     b.Property<long>("Id")
@@ -74,6 +148,74 @@ namespace HobbyShopApp.Migrations
                     b.ToTable("audit_logs", (string)null);
                 });
 
+            modelBuilder.Entity("HobbyShopApp.Models.Cart", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_carts");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_carts_user_id");
+
+                    b.ToTable("carts", (string)null);
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.CartItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CartId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cart_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("product_id");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.HasKey("Id")
+                        .HasName("pk_cart_items");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_cart_items_product_id");
+
+                    b.HasIndex("CartId", "ProductId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_cart_items_cart_id_product_id");
+
+                    b.ToTable("cart_items", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_cart_items_quantity_positive", "quantity > 0");
+                        });
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.Category", b =>
                 {
                     b.Property<long>("Id")
@@ -124,6 +266,253 @@ namespace HobbyShopApp.Migrations
                         .HasDatabaseName("ix_categories_parent_id");
 
                     b.ToTable("categories", (string)null);
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.LedgerEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("amount");
+
+                    b.Property<long>("BalanceAfter")
+                        .HasColumnType("bigint")
+                        .HasColumnName("balance_after");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<long?>("CreatedByUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("EntryType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("entry_type");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("idempotency_key");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<long?>("RefId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("ref_id");
+
+                    b.Property<string>("RefType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("ref_type");
+
+                    b.Property<Guid?>("TransferGroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("transfer_group_id");
+
+                    b.Property<long>("WalletId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("wallet_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_ledger_entries");
+
+                    b.HasIndex("CreatedByUserId")
+                        .HasDatabaseName("ix_ledger_entries_created_by_user_id");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_ledger_entries_idempotency_key");
+
+                    b.HasIndex("WalletId", "CreatedAt")
+                        .HasDatabaseName("ix_ledger_entries_wallet_id_created_at");
+
+                    b.ToTable("ledger_entries", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_ledger_entries_amount_not_zero", "amount <> 0");
+                        });
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Order", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AddressText")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("character varying(600)")
+                        .HasColumnName("address_text");
+
+                    b.Property<long>("BuyerUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("buyer_user_id");
+
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cancel_reason");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<string>("OrderCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("order_code");
+
+                    b.Property<string>("OrderStatus")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("order_status");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("payment_method");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("payment_status");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("RecipientName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("recipient_name");
+
+                    b.Property<long?>("SellerUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("seller_user_id");
+
+                    b.Property<long>("ShippingFee")
+                        .HasColumnType("bigint")
+                        .HasColumnName("shipping_fee");
+
+                    b.Property<long>("Subtotal")
+                        .HasColumnType("bigint")
+                        .HasColumnName("subtotal");
+
+                    b.Property<long>("Total")
+                        .HasColumnType("bigint")
+                        .HasColumnName("total");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_orders");
+
+                    b.HasIndex("OrderCode")
+                        .IsUnique()
+                        .HasDatabaseName("ix_orders_order_code");
+
+                    b.HasIndex("OrderStatus")
+                        .HasDatabaseName("ix_orders_order_status");
+
+                    b.HasIndex("SellerUserId")
+                        .HasDatabaseName("ix_orders_seller_user_id");
+
+                    b.HasIndex("BuyerUserId", "CreatedAt")
+                        .HasDatabaseName("ix_orders_buyer_user_id_created_at");
+
+                    b.ToTable("orders", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_orders_amounts_non_negative", "subtotal >= 0 AND shipping_fee >= 0 AND total >= 0");
+
+                            t.HasCheckConstraint("ck_orders_total_matches", "total = subtotal + shipping_fee");
+                        });
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.OrderItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("LineTotal")
+                        .HasColumnType("bigint")
+                        .HasColumnName("line_total");
+
+                    b.Property<long>("OrderId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("order_id");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("product_id");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("product_name");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.Property<long>("UnitPrice")
+                        .HasColumnType("bigint")
+                        .HasColumnName("unit_price");
+
+                    b.Property<int>("WeightGrams")
+                        .HasColumnType("integer")
+                        .HasColumnName("weight_grams");
+
+                    b.HasKey("Id")
+                        .HasName("pk_order_items");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_order_items_order_id");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_order_items_product_id");
+
+                    b.ToTable("order_items", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_order_items_amounts_non_negative", "unit_price >= 0 AND line_total >= 0");
+
+                            t.HasCheckConstraint("ck_order_items_quantity_positive", "quantity > 0");
+                        });
                 });
 
             modelBuilder.Entity("HobbyShopApp.Models.Permission", b =>
@@ -343,6 +732,116 @@ namespace HobbyShopApp.Migrations
                     b.ToTable("role_permissions", (string)null);
                 });
 
+            modelBuilder.Entity("HobbyShopApp.Models.SystemSetting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("key");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long?>("UpdatedByUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("updated_by_user_id");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Key")
+                        .HasName("pk_system_settings");
+
+                    b.HasIndex("UpdatedByUserId")
+                        .HasDatabaseName("ix_system_settings_updated_by_user_id");
+
+                    b.ToTable("system_settings", (string)null);
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.TopupRequest", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<long?>("LedgerEntryId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("ledger_entry_id");
+
+                    b.Property<string>("ProofStorageKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("proof_storage_key");
+
+                    b.Property<string>("RejectReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reject_reason");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reviewed_at");
+
+                    b.Property<long?>("ReviewedByUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("reviewed_by_user_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TransferCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("transfer_code");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_topup_requests");
+
+                    b.HasIndex("LedgerEntryId")
+                        .HasDatabaseName("ix_topup_requests_ledger_entry_id");
+
+                    b.HasIndex("ReviewedByUserId")
+                        .HasDatabaseName("ix_topup_requests_reviewed_by_user_id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_topup_requests_status");
+
+                    b.HasIndex("TransferCode")
+                        .IsUnique()
+                        .HasDatabaseName("ix_topup_requests_transfer_code");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_topup_requests_user_id");
+
+                    b.ToTable("topup_requests", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_topup_requests_amount_positive", "amount > 0");
+                        });
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.User", b =>
                 {
                     b.Property<long>("Id")
@@ -409,6 +908,67 @@ namespace HobbyShopApp.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("HobbyShopApp.Models.Wallet", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("Balance")
+                        .HasColumnType("bigint")
+                        .HasColumnName("balance");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("WalletType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("wallet_type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_wallets");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_wallets_user_id");
+
+                    b.HasIndex("WalletType")
+                        .IsUnique()
+                        .HasDatabaseName("ux_wallets_single_platform")
+                        .HasFilter("wallet_type = 'Platform'");
+
+                    b.ToTable("wallets", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_wallets_user_balance_non_negative", "wallet_type <> 'User' OR balance >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Address", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_addresses_users_user_id");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.AuditLog", b =>
                 {
                     b.HasOne("HobbyShopApp.Models.User", "Actor")
@@ -420,6 +980,39 @@ namespace HobbyShopApp.Migrations
                     b.Navigation("Actor");
                 });
 
+            modelBuilder.Entity("HobbyShopApp.Models.Cart", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_carts_users_user_id");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.CartItem", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.Cart", "Cart")
+                        .WithMany("Items")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_cart_items_carts_cart_id");
+
+                    b.HasOne("HobbyShopApp.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_cart_items_products_product_id");
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.Category", b =>
                 {
                     b.HasOne("HobbyShopApp.Models.Category", "Parent")
@@ -428,6 +1021,67 @@ namespace HobbyShopApp.Migrations
                         .HasConstraintName("fk_categories_categories_parent_id");
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.LedgerEntry", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_ledger_entries_users_created_by_user_id");
+
+                    b.HasOne("HobbyShopApp.Models.Wallet", "Wallet")
+                        .WithMany()
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_ledger_entries_wallets_wallet_id");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Order", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.User", "Buyer")
+                        .WithMany()
+                        .HasForeignKey("BuyerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_orders_users_buyer_user_id");
+
+                    b.HasOne("HobbyShopApp.Models.User", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_users_seller_user_id");
+
+                    b.Navigation("Buyer");
+
+                    b.Navigation("Seller");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.OrderItem", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.Order", "Order")
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_items_orders_order_id");
+
+                    b.HasOne("HobbyShopApp.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_items_products_product_id");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("HobbyShopApp.Models.Product", b =>
@@ -491,6 +1145,45 @@ namespace HobbyShopApp.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("HobbyShopApp.Models.SystemSetting", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.User", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_system_settings_users_updated_by_user_id");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.TopupRequest", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.LedgerEntry", "LedgerEntry")
+                        .WithMany()
+                        .HasForeignKey("LedgerEntryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_topup_requests_ledger_entries_ledger_entry_id");
+
+                    b.HasOne("HobbyShopApp.Models.User", "ReviewedBy")
+                        .WithMany()
+                        .HasForeignKey("ReviewedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_topup_requests_users_reviewed_by_user_id");
+
+                    b.HasOne("HobbyShopApp.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_topup_requests_users_user_id");
+
+                    b.Navigation("LedgerEntry");
+
+                    b.Navigation("ReviewedBy");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.User", b =>
                 {
                     b.HasOne("HobbyShopApp.Models.Role", "Role")
@@ -503,11 +1196,32 @@ namespace HobbyShopApp.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("HobbyShopApp.Models.Wallet", b =>
+                {
+                    b.HasOne("HobbyShopApp.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_wallets_users_user_id");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Cart", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("HobbyShopApp.Models.Category", b =>
                 {
                     b.Navigation("Children");
 
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("HobbyShopApp.Models.Order", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("HobbyShopApp.Models.Permission", b =>
