@@ -152,6 +152,9 @@ namespace HobbyShopApp.Data
                     e.HasOne(x => x.Seller).WithMany()
                         .HasForeignKey(x => x.SellerUserId)
                         .OnDelete(DeleteBehavior.Restrict);
+   
+
+
                 });
 
                 modelBuilder.Entity<OrderItem>(e =>
