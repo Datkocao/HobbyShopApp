@@ -91,7 +91,9 @@ namespace HobbyShopApp.Migrations
                         .HasName("pk_addresses");
 
                     b.HasIndex("UserId")
-                        .HasDatabaseName("ix_addresses_user_id");
+                        .IsUnique()
+                        .HasDatabaseName("ux_addresses_one_default")
+                        .HasFilter("is_default = true AND is_deleted = false");
 
                     b.ToTable("addresses", (string)null);
                 });
@@ -239,7 +241,8 @@ namespace HobbyShopApp.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
                         .HasColumnName("name");
 
                     b.Property<long?>("ParentId")
@@ -248,7 +251,8 @@ namespace HobbyShopApp.Migrations
 
                     b.Property<string>("Slug")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
                         .HasColumnName("slug");
 
                     b.Property<int>("SortOrder")
@@ -264,6 +268,10 @@ namespace HobbyShopApp.Migrations
 
                     b.HasIndex("ParentId")
                         .HasDatabaseName("ix_categories_parent_id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_categories_slug");
 
                     b.ToTable("categories", (string)null);
                 });
@@ -561,10 +569,6 @@ namespace HobbyShopApp.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<long>("CreatedById")
-                        .HasColumnType("bigint")
-                        .HasColumnName("created_by_id");
-
                     b.Property<long>("CreatedByUserId")
                         .HasColumnType("bigint")
                         .HasColumnName("created_by_user_id");
@@ -583,16 +587,13 @@ namespace HobbyShopApp.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("name");
 
                     b.Property<long>("Price")
                         .HasColumnType("bigint")
                         .HasColumnName("price");
-
-                    b.Property<long?>("SellerId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("seller_id");
 
                     b.Property<long?>("SellerUserId")
                         .HasColumnType("bigint")
@@ -600,11 +601,14 @@ namespace HobbyShopApp.Migrations
 
                     b.Property<string>("Slug")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(280)
+                        .HasColumnType("character varying(280)")
                         .HasColumnName("slug");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
                         .HasColumnName("status");
 
                     b.Property<int>("StockQuantity")
@@ -622,16 +626,31 @@ namespace HobbyShopApp.Migrations
                     b.HasKey("Id")
                         .HasName("pk_products");
 
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("ix_products_category_id");
+                    b.HasIndex("CreatedByUserId")
+                        .HasDatabaseName("ix_products_created_by_user_id");
 
-                    b.HasIndex("CreatedById")
-                        .HasDatabaseName("ix_products_created_by_id");
+                    b.HasIndex("Price")
+                        .HasDatabaseName("ix_products_price");
 
-                    b.HasIndex("SellerId")
-                        .HasDatabaseName("ix_products_seller_id");
+                    b.HasIndex("SellerUserId")
+                        .HasDatabaseName("ix_products_seller_user_id");
 
-                    b.ToTable("products", (string)null);
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_products_slug");
+
+                    b.HasIndex("CategoryId", "Status")
+                        .HasDatabaseName("ix_products_category_id_status");
+
+                    b.HasIndex("Status", "IsFeatured")
+                        .HasDatabaseName("ix_products_status_is_featured");
+
+                    b.ToTable("products", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_products_price_non_negative", "price >= 0");
+
+                            t.HasCheckConstraint("ck_products_stock_non_negative", "stock_quantity >= 0");
+                        });
                 });
 
             modelBuilder.Entity("HobbyShopApp.Models.Productimage", b =>
@@ -645,7 +664,8 @@ namespace HobbyShopApp.Migrations
 
                     b.Property<string>("ContentType")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("content_type");
 
                     b.Property<DateTime>("CreatedAt")
@@ -670,14 +690,17 @@ namespace HobbyShopApp.Migrations
 
                     b.Property<string>("StorageKey")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("storage_key");
 
                     b.HasKey("Id")
                         .HasName("pk_product_images");
 
                     b.HasIndex("ProductId")
-                        .HasDatabaseName("ix_product_images_product_id");
+                        .IsUnique()
+                        .HasDatabaseName("ux_product_images_one_primary")
+                        .HasFilter("is_primary = true");
 
                     b.ToTable("product_images", (string)null);
                 });
@@ -1018,6 +1041,7 @@ namespace HobbyShopApp.Migrations
                     b.HasOne("HobbyShopApp.Models.Category", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_categories_categories_parent_id");
 
                     b.Navigation("Parent");
@@ -1089,21 +1113,22 @@ namespace HobbyShopApp.Migrations
                     b.HasOne("HobbyShopApp.Models.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_products_categories_category_id");
 
                     b.HasOne("HobbyShopApp.Models.User", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_products_users_created_by_id");
+                        .HasConstraintName("fk_products_users_created_by_user_id");
 
                     b.HasOne("HobbyShopApp.Models.User", "Seller")
                         .WithMany()
-                        .HasForeignKey("SellerId")
-                        .HasConstraintName("fk_products_users_seller_id");
+                        .HasForeignKey("SellerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_products_users_seller_user_id");
 
                     b.Navigation("Category");
 

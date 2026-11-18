@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,8 @@ builder.Services.Configure<R2Options>(builder.Configuration.GetSection("R2"));
 builder.Services.AddSingleton<IImageStorage, R2ImageStorage>();
 builder.Services.AddSingleton<IImageUrlBuilder, ImageUrlBuilder>();
 builder.Services.AddScoped<IProductImageService, ProductImageService>();
+builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Thiếu Jwt:Key. Hãy đặt bằng dotnet user-secrets.");
@@ -78,6 +81,9 @@ builder.Services.AddAuthorization(options =>
 {
     foreach (var code in PermissionCodes.All)
         options.AddPolicy(code, policy => policy.RequireClaim("permission", code));
+    options.AddPolicy(PolicyNames.CanShop, policy => policy
+        .RequireAuthenticatedUser()
+        .RequireAssertion(ctx => !ctx.User.IsInRole("STAFF") && !ctx.User.IsInRole("ADMIN")));
 });
 
 var app = builder.Build();
