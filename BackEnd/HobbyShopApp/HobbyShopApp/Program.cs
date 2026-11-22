@@ -51,9 +51,14 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.Configure<R2Options>(builder.Configuration.GetSection("R2"));
 builder.Services.AddSingleton<IImageStorage, R2ImageStorage>();
 builder.Services.AddSingleton<IImageUrlBuilder, ImageUrlBuilder>();
+builder.Services.AddSingleton<IPrivateFileStorage, R2PrivateFileStorage>();
 builder.Services.AddScoped<IProductImageService, ProductImageService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<ITopupService, TopupService>();
+builder.Services.AddScoped<ITopupAdminService, TopupAdminService>();
+builder.Services.AddScoped<ITopupReviewService, TopupReviewService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Thiếu Jwt:Key. Hãy đặt bằng dotnet user-secrets.");

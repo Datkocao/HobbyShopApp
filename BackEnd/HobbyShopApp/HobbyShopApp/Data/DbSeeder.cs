@@ -57,6 +57,14 @@ namespace HobbyShopApp.Data
                 logger.LogInformation("Đã seed vai trò và quyền.");
             }
 
+            // Ví hệ thống (Platform): ĐÚNG MỘT ví, nhận hoa hồng và tiền đơn hàng của shop.
+            if (!await db.Wallets.AnyAsync(w => w.WalletType == WalletType.Platform))
+            {
+                db.Wallets.Add(new Wallet { WalletType = WalletType.Platform, UserId = null });
+                await db.SaveChangesAsync();
+                logger.LogInformation("Đã tạo ví hệ thống.");
+            }
+
             var email = config["Seed:AdminEmail"];
             var password = config["Seed:AdminPassword"];
 

@@ -9,6 +9,8 @@ public class R2Options
     public string AccessKeyId { get; set; } = "";
     public string SecretAccessKey { get; set; } = "";
     public string Bucket { get; set; } = "";
+    // Tên bucket RIÊNG TƯ (không công khai), dùng cho ảnh chứng từ chuyển khoản.
+    public string PrivateBucket { get; set; } = "";
 
     // Địa chỉ gốc để xem ảnh công khai, ví dụ https://pub-xxxx.r2.dev hoặc tên miền riêng.
     public string PublicBaseUrl { get; set; } = "";
