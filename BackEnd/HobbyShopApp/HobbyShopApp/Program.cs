@@ -59,6 +59,7 @@ builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<ITopupService, TopupService>();
 builder.Services.AddScoped<ITopupAdminService, TopupAdminService>();
 builder.Services.AddScoped<ITopupReviewService, TopupReviewService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Thiếu Jwt:Key. Hãy đặt bằng dotnet user-secrets.");
