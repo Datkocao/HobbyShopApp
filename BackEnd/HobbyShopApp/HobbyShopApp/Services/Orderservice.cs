@@ -132,6 +132,27 @@ public class OrderService : IOrderService
         await using var tx = await _db.Database.BeginTransactionAsync();
         try
         {
+            // Bước 0: "giành" các dòng giỏ hàng. Xóa từng dòng giỏ bằng một câu DELETE có điều kiện đúng số lượng đã đọc.
+            // Hai yêu cầu đặt hàng cùng lúc từ một giỏ (bấm đúp, hai tab): chỉ một bên xóa được dòng giỏ, bên còn lại
+            // nhận 0 dòng và dừng ngay ở đây, nên một giỏ không bao giờ thành hai đơn. Giỏ bị đổi giữa chừng
+            // (ví dụ vừa sửa số lượng) cũng dừng ở đây. Lỗi các bước sau thì transaction hoàn tác, giỏ được trả lại.
+            foreach (var line in ordered)
+            {
+                var claimProductId = line.ProductId;
+                var claimQty = line.Quantity;
+
+                var claimed = await _db.CartItems
+                    .Where(i => i.Cart.UserId == userId && i.ProductId == claimProductId && i.Quantity == claimQty)
+                    .ExecuteDeleteAsync();
+
+                if (claimed == 0)
+                {
+                    await tx.RollbackAsync();
+                    return Fail(ServiceErrorType.Conflict,
+                        "Giỏ hàng vừa thay đổi hoặc đã được đặt, hãy kiểm tra lại giỏ.");
+                }
+            }
+
             // Bước 1: trừ kho bằng câu UPDATE có điều kiện "còn đủ hàng". Dòng sản phẩm bị khóa tới hết transaction,
             // nên giá đọc ở bước 2 chắc chắn là giá tại thời điểm chốt đơn. 0 dòng = vừa hết hàng, dừng cả đơn.
             foreach (var line in ordered)
@@ -268,11 +289,7 @@ public class OrderService : IOrderService
                 await _db.SaveChangesAsync();
             }
 
-            // Bước 5: bỏ các dòng đã đặt khỏi giỏ (chỉ đúng những sản phẩm trong đơn), rồi ghi nhật ký.
-            await _db.CartItems
-                .Where(i => i.Cart.UserId == userId && productIds.Contains(i.ProductId))
-                .ExecuteDeleteAsync();
-
+            // Bước 5: ghi nhật ký (các dòng giỏ đã được "giành" và xóa ở bước 0).
             _audit.Add(userId, "order.create", nameof(Order), order.Id.ToString(), null,
                 new
                 {

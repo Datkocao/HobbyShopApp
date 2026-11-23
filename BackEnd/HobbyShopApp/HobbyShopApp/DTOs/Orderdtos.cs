@@ -34,6 +34,7 @@ public class OrderDto
     public string Phone { get; set; } = "";
     public string AddressText { get; set; } = "";
     public string? Note { get; set; }
+    public string? CancelReason { get; set; }
     public DateTime CreatedAt { get; set; }
     public List<OrderItemDto> Items { get; set; } = new();
 }

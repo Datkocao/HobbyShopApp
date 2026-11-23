@@ -60,6 +60,9 @@ builder.Services.AddScoped<ITopupService, TopupService>();
 builder.Services.AddScoped<ITopupAdminService, TopupAdminService>();
 builder.Services.AddScoped<ITopupReviewService, TopupReviewService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderQueryService, OrderQueryService>();
+builder.Services.AddScoped<IOrderStatusService, OrderStatusService>();
+builder.Services.AddScoped<IOrderCancelService, OrderCancelService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Thiếu Jwt:Key. Hãy đặt bằng dotnet user-secrets.");
